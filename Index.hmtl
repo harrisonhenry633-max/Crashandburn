@@ -1,0 +1,84 @@
+import { useEffect, useState } from "react";
+
+type Player = {
+  hp: number;
+  maxHp: number;
+  level: number;
+  xp: number;
+  xpNext: number;
+  damage: number;
+  weapon: string;
+};
+
+export default function Game() {
+  // ✅ OPTION 1 INSERTED HERE — PLAYER IS NEVER NULL
+  const [player, setPlayer] = useState<Player>({
+    hp: 100,
+    maxHp: 100,
+    level: 1,
+    xp: 0,
+    xpNext: 100,
+    damage: 10,
+    weapon: "Scrap Blaster",
+  });
+
+  // Example enemy state
+  const [enemyHp, setEnemyHp] = useState(50);
+
+  // Example combat tick
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEnemyHp((hp) => Math.max(0, hp - player.damage));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [player.damage]);
+
+  return (
+    <div className="w-full h-screen bg-black text-white flex flex-col items-center justify-center gap-4">
+      <h1 className="text-xl font-bold text-cyan-400">
+        Crash & Burn: Rift Survivor
+      </h1>
+
+      {/* PLAYER UI — NO CRASH */}
+      <div className="w-64 bg-zinc-900 p-3 rounded">
+        <div className="flex justify-between text-xs font-bold text-cyan-400">
+          <span>VITALITY</span>
+          <span>
+            {Math.floor(player.hp)} / {player.maxHp}
+          </span>
+        </div>
+
+        <progress
+          value={(player.hp / player.maxHp) * 100}
+          max={100}
+          className="w-full h-2 mt-1"
+        />
+
+        <div className="mt-2 text-xs">
+          <div>Level: {player.level}</div>
+          <div>XP: {player.xp} / {player.xpNext}</div>
+          <div>Weapon: {player.weapon}</div>
+        </div>
+      </div>
+
+      {/* ENEMY */}
+      <div className="text-red-400 text-sm">
+        Enemy HP: {enemyHp}
+      </div>
+
+      {/* TEST DAMAGE BUTTON */}
+      <button
+        className="px-4 py-2 bg-red-600 rounded text-sm"
+        onClick={() =>
+          setPlayer((p) => ({
+            ...p,
+            hp: Math.max(0, p.hp - 10),
+          }))
+        }
+      >
+        Take Damage
+      </button>
+    </div>
+  );
+}
